@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jump Table</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="icon" href="frogwizard.png">
+  <!-- 외부 CSS3 스타일시트 사용 -->
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <img id="Mascot" src="frogwizard.png" />
+  <div class="container">
+    <!-- 헤더 -->
+    <header>
+      <div class="logo">
+        <img src="frogwizard.png" alt="Logo">
+      </div>
+      <h1>Jump Table</h1>
+      <span class="header-badge">AUTO SCHEDULER f235 v0.16 WebPrograming Team YSEG</span>
+    </header>
+
+    <!-- 내비게이션 -->
+    <div class="nav-bar">
+      <button class="nav-btn active" onclick="showPage('page-input', this)">📋 수업 등록하기</button>
+      <button class="nav-btn" onclick="showPage('page-generate', this)">⚡ 맞춤 시간표 생성하기</button>
+      <button class="nav-btn" onclick="showPage('page-guide', this)">🎥 사용법 가이드</button>
+      <button class="nav-settings-btn" id="settingsNavBtn" onclick="toggleSettings()">⚙️ 설정</button>
+    </div>
+
+    <!-- 설정 오버레이 -->
+    <div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOnBg(event)">
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+          <span class="settings-header-title">⚙️ 설정</span>
+          <button class="settings-close" onclick="toggleSettings()">×</button>
+        </div>
+        <div class="settings-body">
+          <div>
+            <div class="settings-section-label">라이트 / 다크 모드</div>
+            <div class="theme-toggle-row">
+              <span class="theme-label" id="themeLabel">☀️</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="darkToggle" onchange="applyDark(this.checked)">
+                <span class="toggle-track"></span>
+              </label>
+            </div>
+          </div>
+          <div class="settings-divider"></div>
+          <div>
+            <div class="settings-section-label">캐릭터 테마</div>
+            <div class="character-theme-row">
+              <button class="character-theme-btn active" onclick="setCharacterTheme('frogwizard', this)"
+                title="frogwizard">
+                <img src="frogwizard.png" alt="개구리 마법사 테마">
+              </button>
+              <button class="character-theme-btn" onclick="setCharacterTheme('kgu', this)" title="kgu">
+                <img src="kgublue.png" alt="기룡이 테마">
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-divider"></div>
+          <div>
+            <div class="settings-section-label">기능 설정</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <div class="settings-item-name">✨ 배경 그라디언트</div>
+                  <div class="settings-item-desc">페이지 배경의 은은한 색상 효과</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleBg" checked onchange="toggleBgEffect(this.checked)">
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <div class="settings-item-name">⚡ 애니메이션 줄이기</div>
+                  <div class="settings-item-desc">모든 전환 효과를 최소화합니다</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleMotion" onchange="toggleReduceMotion(this.checked)">
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+              <div class="settings-item">
+                <div class="settings-item-info">
+                  <div class="settings-item-name">🔔 입력 토스트 알림</div>
+                  <div class="settings-item-desc">수업 추가·삭제 시 토스트 메시지 표시</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="toggleToast" checked onchange="setToastEnabled(this.checked)">
+                  <span class="toggle-track"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="settings-divider"></div>
+          <div>
+            <div class="settings-section-label">데이터</div>
+            <button class="btn-sage" style="width:100%;font-size:12px;padding:9px;" onclick="resetAll()">🗑️ 모든 수업 데이터
+              초기화</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1페이지 -->
+    <div class="page-section active" id="page-input">
+      <div class="main-grid">
+        <div class="left-panel">
+
+          <!-- 1페이지 카드1 -->
+          <div class="card">
+            <div class="card-title">수업 정보 입력</div>
+            <div class="input-row full">
+              <div><label>과목명</label><input type="text" id="courseName" placeholder="예: 웹프로그래밍"></div>
+            </div>
+            <div class="input-row three">
+              <div><label>학점</label><select id="courseCredit">
+                  <option value="1">1학점</option>
+                  <option value="2">2학점</option>
+                  <option value="3" selected>3학점</option>
+                  <option value="4">4학점</option>
+                </select></div>
+              <div><label>구분</label><select id="courseType">
+                  <option>전공필수</option>
+                  <option>전공선택</option>
+                  <option>교양필수</option>
+                  <option>교양선택</option>
+                  <option>일반선택</option>
+                </select></div>
+              <div><label>교수</label><input type="text" id="courseProfessor" placeholder="교수명"></div>
+            </div>
+            <div class="input-row three">
+              <div><label>요일</label><select id="courseDay">
+                  <option>월</option>
+                  <option>화</option>
+                  <option>수</option>
+                  <option>목</option>
+                  <option>금</option>
+                </select></div>
+              <div><label>시작 교시</label><select id="courseStart">
+                  <option value="1">1교시 (09:00)</option>
+                  <option value="2">2교시 (10:00)</option>
+                  <option value="3">3교시 (11:00)</option>
+                  <option value="4">4교시 (12:00)</option>
+                  <option value="5">5교시 (13:00)</option>
+                  <option value="6">6교시 (14:00)</option>
+                  <option value="7">7교시 (15:00)</option>
+                  <option value="8">8교시 (16:00)</option>
+                  <option value="9">9교시 (17:00)</option>
+                  <option value="10">10교시 (18:00)</option>
+                </select></div>
+              <div><label>강의 교시 수</label><select id="courseDuration">
+                  <option value="1">1교시</option>
+                  <option value="2">2교시</option>
+                  <option value="3" selected>3교시</option>
+                  <option value="4">4교시</option>
+                </select></div>
+            </div>
+            <div class="must-include-course">
+              <input type="checkbox" id="mustInclude">
+              <label for="mustInclude">필수 포함 수업 — 모든 시간표에 반드시 포함</label>
+            </div>
+            <button class="btn-add" onclick="addCourse()">+ 수업 추가</button>
+          </div>
+
+          <!-- 1페이지 카드2 -->
+          <div class="card">
+            <div class="card-title">수업 목록 <span id="courseCount"
+                style="margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--lake-dark);background:var(--lake-soft);border:1px solid var(--lake-mid);padding:2px 9px;border-radius:10px;">0개</span>
+            </div>
+            <div class="course-list" id="courseList">
+              <div class="empty-state" style="padding:16px;">
+                <div class="empty-icon" style="font-size:28px;">📚</div><small>수업을 추가해주세요</small>
+              </div>
+            </div>
+            <button class="btn-remove" onclick="clearCourses()">전체 삭제</button>
+          </div>
+
+          <button class="btn-generate" onclick="showPage('page-generate', document.querySelectorAll('.nav-btn')[1])">
+            ⚡ 시간표 조건 설정하러 가기
+          </button>
+        </div>
+
+        <!-- 1페이지 카드3 -->
+        <div>
+          <div class="card" style="min-height:300px;">
+            <div class="card-title">등록된 수업 요약</div>
+            <div class="empty-state" id="inputSummary">
+              <div class="empty-icon">📋</div>
+              <p>수업을 추가하면 여기에 요약이 표시됩니다</p>
+              <small>시간표 생성은 상단 네비게이션의 '시간표 생성' 탭에서 진행하세요</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2페이지 -->
+    <div class="page-section" id="page-generate">
+      <div class="main-grid">
+        <div class="left-panel">
+
+          <!-- 2페이지 카드1 -->
+          <div class="card">
+            <div class="card-title">시간표 필수 조건 설정</div>
+            <label style="margin-bottom:7px;">공강 요일 선택</label>
+            <div class="chip-group" id="offDayChips">
+              <div class="chip" data-val="월" onclick="toggleChip(this)">월요일</div>
+              <div class="chip" data-val="화" onclick="toggleChip(this)">화요일</div>
+              <div class="chip" data-val="수" onclick="toggleChip(this)">수요일</div>
+              <div class="chip" data-val="목" onclick="toggleChip(this)">목요일</div>
+              <div class="chip" data-val="금" onclick="toggleChip(this)">금요일</div>
+            </div>
+            <label style="margin-bottom:7px;">수업 시간 조건</label>
+            <div class="chip-group">
+              <div class="chip" data-key="avoidFirstPeriod" onclick="toggleBool(this)">1교시 금지</div>
+              <div class="chip" data-key="avoidLastPeriod" onclick="toggleBool(this)">9·10교시 금지</div>
+              <div class="chip" data-key="noConsecutive4" onclick="toggleBool(this)">3연강 초과 금지</div>
+              <div class="chip" data-key="lunchBreak" onclick="toggleBool(this)">점심 보장 (1시간)</div>
+            </div>
+            <div class="credit-range-grid">
+              <div><label>최소 학점</label><input type="number" id="minCredits" placeholder="제한 없음" min="0" max="30"></div>
+              <div><label>최대 학점</label><input type="number" id="maxCredits" placeholder="제한 없음" min="0" max="30"></div>
+            </div>
+            <div class="divider"></div>
+            <div class="card-title" style="margin-bottom:12px;">추천 가중치 조절</div>
+            <div class="slider"><span class="slider-label">이른수업 기피</span><input type="range" min="0" max="5" value="0"
+                id="w_early" oninput="this.nextElementSibling.textContent=this.value"><span class="slider-val">0</span>
+            </div>
+            <div class="slider"><span class="slider-label">늦은수업 기피</span><input type="range" min="0" max="5" value="0"
+                id="w_late" oninput="this.nextElementSibling.textContent=this.value"><span class="slider-val">0</span>
+            </div>
+            <div class="slider"><span class="slider-label">연강 최소화</span><input type="range" min="0" max="5" value="0"
+                id="w_consecutive" oninput="this.nextElementSibling.textContent=this.value"><span
+                class="slider-val">0</span></div>
+            <div class="slider"><span class="slider-label">점심 보장 선호</span><input type="range" min="0" max="5" value="0"
+                id="w_lunch" oninput="this.nextElementSibling.textContent=this.value"><span class="slider-val">0</span>
+            </div>
+            <div class="divider"></div>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input type="radio" name="preference" value="smart" checked>
+                <span>스마트 추천순</span>
+              </label>
+              <label class="radio-item">
+                <input type="radio" name="preference" value="credits">
+                <span>최다 학점순</span>
+              </label>
+            </div>
+          </div>
+
+          <button class="btn-generate" onclick="generate()">
+            🪄 시간표 자동 생성
+          </button>
+        </div>
+
+        <!-- 2페이지 카드2 -->
+        <div>
+          <div class="card" id="resultPanel" style="min-height:520px;">
+            <div class="empty-state">
+              <div class="empty-icon">✨</div>
+              <p>조건을 설정하고 생성 버튼을 눌러주세요</p>
+              <small>최대 7개의 시간표 후보를 추천해드립니다</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3페이지 -->
+    <div class="page-section" id="page-guide">
+      <div class="card">
+        <div class="card-title">🎥 사용법 가이드</div>
+        <div class="video-wrapper">
+          <video class="custom-video" controls preload="metadata">
+            <source src="Wildlife.mp4" type="video/mp4">
+            <source src="Wildlife.webm" type="video/webm">
+            브라우저가 비디오 태그를 지원하지 않습니다.
+          </video>
+          <div class="tutorial-info">
+            <p>💡 <strong>Tip</strong>: 자세한 사용법은 위 영상을 참고해 주세요.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="footer-project">경기대학교 웹 프로그래밍 산학협력 프로젝트 과제</div>
+      <div class="footer-members">이양호 · 김수현 · 홍은기 · 권기민</div>
+      <div class="footer-license">라이선스: 개인 학습 및 포트폴리오 목적으로 제작된 웹사이트입니다.</div>
+    </footer>
+  </div>
+
+  <!-- 토스트 알림 -->
+  <div class="toast" id="toast"></div>
+
+  <!-- 외부 자바스크립트 사용 -->
+  <script src="script.js"></script>
+
+</body>
+
+</html>
